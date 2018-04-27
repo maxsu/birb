@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Fetch standard input, tee off to a silent speech 
+say1() {
+  MSG=$(cat|iconv -f utf-8 -t us-ascii//TRANSLIT)
+  echo "$MSG"
+  gtts-cli "$MSG" |  play -t mp3 - 1>/dev/null
+}
+
+# Report Errors
+error() {
+  sed -e '/^$/d; s/^\(.\+\)$/Gtts Error stream:  \1/'
+}
+
+# Check to see if a pipe exists on stdin.
+if [ -p /dev/stdin ]; then
+  say1
+else
+        # Checking to ensure a string was specified
+        if [ -z "$*" ]; then
+            fortune | say1
+        else
+            echo "$*" | say1
+        fi
+fi
