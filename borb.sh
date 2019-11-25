@@ -1,6 +1,10 @@
 #!/bin/bash
 
 
+
+AWS_CONFIG_FILE='$HOME/.local/'
+
+
 VOICE="$1"
 
 if [ -z $1 ]
@@ -11,7 +15,7 @@ fi
 
 DATE=$(date -I)
 UUID=$(uuidgen)
-BASE='/home/user/aws/polly/cache'
+BASE="$HOME/.aws/polly/cache"
 FILE="$BASE/$UUID"
 
 
@@ -26,7 +30,7 @@ say() {
 
   # Synthetize text and store locally
   aws polly synthesize-speech \
-    --output-format mp3        \
+    --output-format mp3       \
     --voice-id "$VOICE"       \
     --text "$TEXT"            \
     $FILE.mp3
