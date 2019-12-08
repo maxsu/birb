@@ -2,7 +2,6 @@
 import os
 import re
 import sys
-import uuid
 from boto3 import Session as aws
 from pathlib import Path
 from playsound import playsound
@@ -24,7 +23,7 @@ from playsound import playsound as play
 import pyperclip
 import playsound
 
-class Borb:
+# Import local libraries
 from easyLog import log
 from happyUuid import hasId
 from segment import Segment
@@ -33,12 +32,13 @@ from segment import Segment
     _splitter = re.compile(f".{{1,{CHUNK}}}").findall
     _s = aws(**SESS).client('polly').synthesize_speech
     
+class Borb(hasId):
     def __init__(self, text=''):
         self.text = text
         self.len = len(text)
         self.seg = self._splitter(text)
-        self.segs = len(self.seg)
-        self.id = uuid.uuid4().hex
+    def speak(self):
+        """ Speak an instance of text
 
     def _synth(self, text):
         resp = self._s(Text=text, **SYNTH)
