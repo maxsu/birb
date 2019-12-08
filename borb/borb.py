@@ -1,11 +1,4 @@
 #!/usr/bin/python3
-import os
-import re
-import sys
-from boto3 import Session as aws
-from pathlib import Path
-from playsound import playsound
-import pyperclip
 
 # This is licensed under the MIT license
 # Copyright 2019 Max Suica
