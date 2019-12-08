@@ -8,7 +8,8 @@ from pathlib import Path
 from playsound import playsound
 import pyperclip
 
-CACHE = Path("./cache")
+# This is licensed under the MIT license
+# Copyright 2019 Max Suica
 
 SYNTH = {
     'Engine': 'neural',
