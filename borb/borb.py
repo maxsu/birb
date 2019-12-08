@@ -18,7 +18,6 @@ from easyLog import log
 from happyUuid import hasId
 from segment import Segment
 
-import json
 
 conf = 'borb/borbConfig.json'
 opt = json.loads(Path(conf).resolve().read_text())
@@ -49,14 +48,15 @@ class Borb(hasId):
             speech = self.polly(Text=s, **opt['synth'])['AudioStream'].read()
             log("Response bytes: {}", len(speech))
 
-            # Write segment to cache
-            file = Path(opt['cache']) / f"{self.id}.{i}.mp3"
-            file.write_bytes(speech)
-            log("Wrote file: {}", file)
+            if len(speech) >= 512:
+                # Write segment to cache
+                file = Path(opt['cache']) / f"{self.id}.{i}.mp3"
+                file.write_bytes(speech)
+                log("Wrote file: {}", file)
 
-            # Speak segment
-            log("Playing segment.")
-            play(str(file))
+                # Speak segment
+                log("Playing segment.")
+                play(str(file))
 
         return self
 
