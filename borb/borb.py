@@ -5,9 +5,6 @@
 
 # Import python libs
 import os, re, sys, json
-    'VoiceId': 'Joanna',
-    'OutputFormat': 'mp3'
-}
 
 # Import external deps
 from boto3     import Session as aws
@@ -21,27 +18,47 @@ from easyLog import log
 from happyUuid import hasId
 from segment import Segment
 
-    CHUNK = 3000
-    _splitter = re.compile(f".{{1,{CHUNK}}}").findall
-    _s = aws(**SESS).client('polly').synthesize_speech
-    
+import json
+
+conf = 'borb/borbConfig.json'
+opt = json.loads(Path(conf).resolve().read_text())
+
 class Borb(hasId):
+
     def __init__(self, text=''):
+        self.polly = aws(**opt['session']).client('polly').synthesize_speech
         self.text = text
-        self.len = len(text)
-        self.seg = self._splitter(text)
+        self.seg = Segment.normalize(text)
+        
     def speak(self):
         """ Speak an instance of text
 
-    def _synth(self, text):
-        resp = self._s(Text=text, **SYNTH)
-        return resp['AudioStream'].read()
+            Play sound directly
+            Cache text in cache/id.i.mp3
+        """
+        text = self.text
+        seg = self.seg
+        segs = len(seg)
+        
+        log("Charachters: {}\n" "Synthesizing text:\n{}", len(text), text)
+        
+        # Process segments
+        for i, s in enumerate(seg):
+            log("\nSegment {} of {}:  {}", i+1, segs, s)
+            # Get segment from synth
+            speech = self.polly(Text=s, **opt['synth'])['AudioStream'].read()
+            log("Response bytes: {}", len(speech))
 
-    def _speak(self, i):
-        speech = self._synth(self.seg[i])
-        file = CACHE / f"{self.id}.{i}.mp3"
-        file.write_bytes(speech)
-        playsound(str(file))
+            # Write segment to cache
+            file = Path(opt['cache']) / f"{self.id}.{i}.mp3"
+            file.write_bytes(speech)
+            log("Wrote file: {}", file)
+
+            # Speak segment
+            log("Playing segment.")
+            play(str(file))
+
+        return self
 
     @classmethod
     def Stdin(cls):
@@ -50,19 +67,6 @@ class Borb(hasId):
     @classmethod
     def Clip(cls):
         return cls(pyperclip.paste())
-
-    def speak(self):
-        """ Speak all segments
-        """
-        report = (
-            f"Charachters: {self.len}"
-            f"Synthesizing text:\n{self.text}\n"
-        )
-        print(report)
-        for i, s in enumerate(self.seg):
-            print(f"Segment {i+1} of {self.segs}:  {s}\n")
-            self._speak(i)
-        return self
 
 if __name__ == '__main__':
     Borb("Henlo. I am Borb.").speak()
