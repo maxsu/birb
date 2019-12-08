@@ -11,18 +11,23 @@ import pyperclip
 # This is licensed under the MIT license
 # Copyright 2019 Max Suica
 
-SYNTH = {
-    'Engine': 'neural',
+# Import python libs
+import os, re, sys, json
     'VoiceId': 'Joanna',
     'OutputFormat': 'mp3'
 }
 
-SESS = {
-    'profile_name': 'default',
-    'region_name': 'us-west-2'
-}
+# Import external deps
+from boto3     import Session as aws
+from pathlib   import Path
+from playsound import playsound as play
+import pyperclip
+import playsound
 
 class Borb:
+from easyLog import log
+from happyUuid import hasId
+from segment import Segment
 
     CHUNK = 3000
     _splitter = re.compile(f".{{1,{CHUNK}}}").findall
