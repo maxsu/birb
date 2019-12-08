@@ -2,6 +2,9 @@
 from unittest import TestCase, main
 from pathlib import Path
 import pyperclip
+
+import sys
+sys.path.append( str(Path('borb').resolve()) )
 from borb import Borb
 
 
