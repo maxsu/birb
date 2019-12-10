@@ -35,7 +35,7 @@ class TestBorb(TestCase):
                 line 2
                 line 3"""
         b2 = Borb(testString).speak()
-        self.assertEqual(len(b2.seg), 3)
+        self.assertEqual(len(b2.seg), 1)
 
     def test_whitepspace(self):
         # Test empty string
