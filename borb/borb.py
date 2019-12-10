@@ -27,7 +27,7 @@ class Borb(hasId):
     def __init__(self, text=''):
         self.polly = aws(**opt['session']).client('polly').synthesize_speech
         self.text = text
-        self.seg = Segment.normalize(text)
+        self.seg = Segment.normalize(text, opt['chunk'])
         
     def speak(self):
         """ Speak an instance of text
