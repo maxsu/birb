@@ -4,18 +4,19 @@
 #  Written by Max Suica <max.suica@gmail.com> October, 2019
 
 from unittest import TestCase, main
-from pathlib import Path
-import pyperclip
 
+from pathlib import Path
 import sys
 sys.path.append(str(Path('borb').resolve()))
-from segment import Segment, Res
+
+from segment import Segment
+from funtools import _Res
 
 
 class TestSegment(TestCase):
 
     def test_defaultVal(self):
-        self.assertEqual(len(Res()), 0)
+        self.assertEqual(len(_Res()), 0)
 
     def test_functionalInit(self):
         val = Segment.normalize("abc", 2).data

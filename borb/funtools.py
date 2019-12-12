@@ -1,7 +1,8 @@
-from dataclasses import dataclass
 from itertools import chain
+from functools import reduce
 
 cat = chain.from_iterable
+
 
 class wrapper:
     def wrap(self, f):
@@ -11,25 +12,20 @@ class wrapper:
             a.data = val
             return a
 
-   
+
 def not_(f):
     return lambda *x: not f(*x)
 
 
 class _Res:
-    """ Appendable list of strings: [str]
-
-        Used as state for reduce
+    """ Reducer state. Appendable list of strings.
 
         val: List of strings
-
-        __len__: Length of latest string in val
-        
-        append: Append to latest string
-        
+        __len__: Length of last string in val
+        append: Append to last string
         add: Add new string to end of val
     """
-    def __init__(val):
+    def __init__(self, val=None):
         if not val:
             self.val = [""]
         else:
@@ -37,33 +33,31 @@ class _Res:
 
     def __len__(self):
         return len(self.val[-1])
-    
+
     def append(self, next):
-        val = self.val
-        val[-1] += "\n" + next
-        return _Res(val)
+        self.val[-1] += "\n" + next
+        return self
 
     def add(self, next):
-        val = self.val
-        val += [next]
-        return _Res(val)
-
-    def if_(self, f, val):
-        if f(self): return self.append(val)
-        else: return self.add(val)
+        self.val += [next]
+        return self
 
 
 class Funtools:
 
     def map(self, f):
-        return self.__init__(map(f, self.data))
-    
+        self.data = list(map(f, self.data))
+        return self
+
     def catmap(self, f):
-        return self.__init__(cat(map(f, self.data))
-    
+        self.data = list(cat(map(f, self.data)))
+        return self
+
     def filter(self, f):
-        return self.__init__(filter(f, self.data)
+        self.data = list(filter(f, self.data))
+
+        return self
 
     def reduce(self, f):
-        result = reduce(f, self.data, _Res()).val
-        return self.__init__(result)
+        self.data = reduce(f, self.data, _Res()).val
+        return self
