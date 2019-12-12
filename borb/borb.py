@@ -3,17 +3,14 @@
 # This is licensed under the MIT license
 # Copyright 2019 Max Suica
 
-# Import python libs
-import os, re, sys, json
+import json
+import sys
 
-# Import external deps
-from boto3     import Session as aws
-from pathlib   import Path
+from boto3 import Session as aws
+from pathlib import Path
 from playsound import playsound as play
 import pyperclip
-import playsound
 
-# Import local libraries
 from easyLog import log
 from happyUuid import hasId
 from segment import Segment
@@ -22,13 +19,14 @@ from segment import Segment
 conf = 'borb/borbConfig.json'
 opt = json.loads(Path(conf).resolve().read_text())
 
+
 class Borb(hasId):
 
     def __init__(self, text=''):
         self.polly = aws(**opt['session']).client('polly').synthesize_speech
         self.text = text
         self.seg = Segment.normalize(text, opt['chunk'])
-        
+
     def speak(self):
         """ Speak an instance of text
 
@@ -38,9 +36,9 @@ class Borb(hasId):
         text = self.text
         seg = self.seg
         segs = len(seg)
-        
+
         log("Charachters: {}\n" "Synthesizing text:\n{}", len(text), text)
-        
+
         # Process segments
         for i, s in enumerate(seg):
             log("\nSegment {} of {}:  {}", i+1, segs, s)
@@ -67,6 +65,7 @@ class Borb(hasId):
     @classmethod
     def Clip(cls):
         return cls(pyperclip.paste())
+
 
 if __name__ == '__main__':
     Borb("Henlo. I am Borb.").speak()
