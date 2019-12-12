@@ -8,19 +8,23 @@ import re
 
 cat = chain.from_iterable
 
-@dataclass
 class Res:
-    count: int = 0
-    current: [str] = [""]
-    
+
+    def __init__(self, val = None):
+        if not val:
+            val = [""]
+        self.val = val
+
+    def __len__(self):
+        return len(self.val[-1])
+
     def append(self, next):
-        self.current[-1] += "\n" + next
-        self.count += len(next) + 1
-
+        self.val[-1] += "\n" + next
+        return self
+        
     def add(self, next):
-        self.current += [next]
-        self.count = len(next)
-
+        self.val += [next]
+        return self
 
 class Segment(UserList):
     """Segments text for speech by polly
@@ -62,20 +66,25 @@ class Segment(UserList):
         self.data = list(filter(test, self.data))
         return self
 
-    def merge(chunk):
+    def merge(self, chunk):
         """ Split each segment at newlines and chunk size
 
             chunk: int  chunk size (default: 3000)
         """
         def merge_(res, next):
-            if res.count + len(next) < chunk:
-                res.append(next)
+            if len(res) + len(next) < chunk:
+                return res.append(next)
             else:
-                res.add(next)
-            return res
-        self.data = reduce(merge_, self.data, Res()).current
+                return res.add(next)
+
+        self.data = reduce(merge_, self.data, Res()).val
         return self
 
     @staticmethod
     def normalize(text, chunk):
-        return Segment(text).split(chunk).drop().merge(chunk)
+        return (
+            Segment(text)
+                .split(chunk)
+                .drop()
+                .merge(chunk)
+        )
