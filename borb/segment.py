@@ -1,38 +1,32 @@
-from dataclasses import dataclass
 from collections import UserList
-from functools import reduce
-from itertools import chain
-import json
-from pathlib import Path
-import re
+from re import compile
 
-cat = chain.from_iterable
-
-@dataclass
-class Res:
-    count: int = 0
-    current: [str] = [""]
-    
-    def append(self, next):
-        self.current[-1] += "\n" + next
-        self.count += len(next) + 1
-
-    def add(self, next):
-        self.current += [next]
-        self.count = len(next)
+from funtools import Funtools, not_
 
 
-class Segment(UserList):
+def limit(n):
+    """ Function factory: Break string into pieces of max length n
+
+        n: int > 0
+        return: str -> [str]
+
+    """
+
+    if int(n) < 1:
+        raise ValueError("needs n > 0")
+    regex = f".{{1,{n}}}"
+    limiter = compile(regex).findall
+    return limiter
+
+
+class Segment(UserList, Funtools):
     """Segments text for speech by polly
     """
 
-    def __init__(self, text='', data=[]):
-        if data:
-            self.data = list(data)
-        else:
-            self.data = [text]
+    data = [""]
 
-    def split(self, chunk):
+    @classmethod
+    def normalize(cls, text, chunk):
         """ Split each segment at newlines and chunk size
 
             chunk: int  chunk size (default: 3000)
@@ -41,41 +35,22 @@ class Segment(UserList):
 
             provides: Each segment is free of newlines
         """
-        
-        regex = f".{{1,{chunk}}}"
-        findall = re.compile(regex).findall
+        chunk = str(chunk)
 
-        self.data = cat([s.splitlines() for s in self.data])
-        self.data = cat(map(findall, self.data))
-        self.data = [s.strip() for s in self.data]
-        return self
-   
-    def drop(self, regex="^ *$"):
-        """ Drop segments that match a regex
-
-            assumes: strings have no newlines chars
-
-            regex: defaults to match empty or whitespace-only strings
-        """
-        # default: drop empty segments
-        def test(x): return not re.match(regex, x)
-        self.data = list(filter(test, self.data))
-        return self
-
-    def merge(chunk):
-        """ Split each segment at newlines and chunk size
-
-            chunk: int  chunk size (default: 3000)
-        """
-        def merge_(res, next):
-            if res.count + len(next) < chunk:
+        def merge(res, next):
+            choice = len(res) + len(next) < int(chunk)
+            if choice:
                 res.append(next)
+                return res
             else:
                 res.add(next)
-            return res
-        self.data = reduce(merge_, self.data, Res()).current
-        return self
+                return res
 
-    @staticmethod
-    def normalize(text, chunk):
-        return Segment(text).split(chunk).drop().merge(chunk)
+        result = cls([text])
+        result.catmap(limit(chunk))
+        result.catmap(lambda s: s.splitlines())
+        result.map(lambda s: s.strip())
+        result.filter(not_(compile("^ *$").match))
+        result.reduce(merge)
+
+        return result

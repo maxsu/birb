@@ -1,5 +1,6 @@
 import uuid
 
+
 class hasId:
     """ Gives each instance of a subclass a random uuid
 
@@ -10,6 +11,6 @@ class hasId:
     def id(self):
         try:
             return self._id
-        except:
+        except AttributeError:
             self._id = uuid.uuid4().hex
             return self._id
