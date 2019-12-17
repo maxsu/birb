@@ -16,7 +16,7 @@ from happyUuid import hasId
 from segment import Segment
 
 
-conf = 'borb/borbConfig.json'
+conf = 'borbConfig.json'
 opt = json.loads(Path(conf).resolve().read_text())
 
 
