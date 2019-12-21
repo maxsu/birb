@@ -3,14 +3,15 @@
 #  See 'COPYRIGHT' which is part of this source code package
 #  Written by Max Suica <max.suica@gmail.com> October, 2019
 
-from unittest import TestCase, main
-
 from pathlib import Path
 import sys
+from unittest import TestCase, main
+
 sys.path.append(str(Path('borb').resolve()))
 
-from segment import Segment
 from funtools import _Res
+from segment import Segment
+
 
 
 class TestSegment(TestCase):

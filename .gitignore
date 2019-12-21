@@ -7,3 +7,5 @@ cache/
 credentials.csv
 
 __pycache__/
+
+.ionide/
