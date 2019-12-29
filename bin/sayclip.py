@@ -5,6 +5,6 @@ sys.path.append(
     Path('borb').resolve().__str__()
 )
 
-from borb import Borb
+import borb
 
-Borb.Clip().speak()
+borb.clip()

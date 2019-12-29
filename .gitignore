@@ -1,11 +1,5 @@
-.token.pk
-
-cache/
-
-.vscode/
-
-credentials.csv
-
 __pycache__/
-
-.ionide/
+cache/
+credentials.csv
+.token.pk
+.vscode/
