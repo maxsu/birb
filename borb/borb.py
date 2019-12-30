@@ -37,6 +37,7 @@ def normalize(text, chunk=3000, word=False):
             if len(line) > chunk:
                 result += "\n" + line
                 yield from chop(result)
+                result = ""
             else:
                 yield result
                 result = line
@@ -69,9 +70,9 @@ def speak(text=""):
 
             print(f"Wrote file (kbytes): {file} ({len(speech) / 1024.0} kb)")
 
-            # if is playing, wait to stop
-            # play async
+            # if playing, wait to stop; play async
             play(str(file))
+            # Continue; fetch next segment while playing
 
 
 def stdin():
