@@ -1,5 +1,5 @@
 {
-    "cache": "../cache",
+    "cache": "cache",
     "chunk": "3000",
     "synth": {
         "Engine": "neural",

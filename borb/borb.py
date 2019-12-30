@@ -4,68 +4,84 @@
 # Copyright 2019 Max Suica
 
 import json
+import re
 import sys
+import uuid
 
 from boto3 import Session as aws
 from pathlib import Path
 from playsound import playsound as play
 import pyperclip
 
-from easyLog import log
-from happyUuid import hasId
-from segment import Segment
+opt = json.loads(Path('borbConfig.json').read_text())
 
 
-conf = 'borbConfig.json'
-opt = json.loads(Path(conf).resolve().read_text())
+def normalize(text, chunk=3000, word=False):
+    """ Split text into uniform chunks
+
+        Uses existing line breaks
+        Todo: Linebreaks > Word-Chunk > Chunk
+        Avoid breaking strings at words  existing line breaks
+
+        chunk: int  chunk size
+    """
+
+    regex = f".{{1,{chunk}}}"
+    chop = re.compile(regex).findall
+    result = ""
+
+    for line in text.splitlines():
+        if len(line) + len(result) < chunk:
+            result += "\n" + line
+        else:
+            if len(line) > chunk:
+                result += "\n" + line
+                yield from chop(result)
+                result = ""
+            else:
+                yield result
+                result = line
+    yield result
 
 
-class Borb(hasId):
+def speak(text=""):
+    """ Speak an arbitrary length of text
+    """
 
-    def __init__(self, text=''):
-        self.polly = aws(**opt['session']).client('polly').synthesize_speech
-        self.text = text
-        self.seg = Segment.normalize(text, opt['chunk'])
+    client = aws(**opt['session']).client('polly')
+    id = uuid.uuid4().hex
+    seg = list(normalize(text))
+    segs = len(seg)
 
-    def speak(self):
-        """ Speak an instance of text
+    print("Synthesizing speech")
 
-            Play sound directly
-            Cache text in cache/id.i.mp3
-        """
-        text = self.text
-        seg = self.seg
-        segs = len(seg)
+    for i, s in enumerate(seg):
 
-        log("Charachters: {}\n" "Synthesizing text:\n{}", len(text), text)
+        speech = client.synthesize_speech(
+            Text=s,
+            **opt['synth']
+        )['AudioStream'].read()
 
-        # Process segments
-        for i, s in enumerate(seg):
-            log("\nSegment {} of {}:  {}", i+1, segs, s)
-            # Get segment from synth
-            speech = self.polly(Text=s, **opt['synth'])['AudioStream'].read()
-            log("Response bytes: {}", len(speech))
+        print(f"\nSegment {i+1} of {segs}:  {s}")
 
-            if len(speech) >= 512:
-                # Write segment to cache
-                file = Path(opt['cache']) / f"{self.id}.{i}.mp3"
-                file.write_bytes(speech)
-                log("Wrote file: {}", file)
+        if len(speech) >= 512:
+            file = Path(opt['cache']) / f"{id}.{i}.mp3"
+            file.write_bytes(speech)
 
-                # Speak segment
-                log("Playing segment.")
-                play(str(file))
+            print(f"Wrote file (kbytes): {file} ({len(speech) / 1024.0} kb)")
 
-        return self
+            # if playing, wait to stop; play async
+            play(str(file))
+            # Continue; fetch next segment while playing
 
-    @classmethod
-    def Stdin(cls):
-        return cls(sys.stdin.readlines())
 
-    @classmethod
-    def Clip(cls):
-        return cls(pyperclip.paste())
+def stdin():
+    return speak(sys.stdin.readlines())
+
+
+def clip():
+    return speak(pyperclip.paste())
 
 
 if __name__ == '__main__':
-    Borb("Henlo. I am Borb.").speak()
+    speak("Henlo. I am Borb. I am happy to help you read things!")
