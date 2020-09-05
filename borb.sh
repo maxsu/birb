@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+# 
 
 AWS_CONFIG_FILE='$HOME/.local/'
 
@@ -9,7 +9,7 @@ VOICE="$1"
 
 if [ -z $1 ]
 then 
-  VOICE='Aditi'
+  VOICE='Joanna'
 fi
 
 
