@@ -1,0 +1,3 @@
+import borb
+
+borb.clip()

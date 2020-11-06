@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "borb"
+version = "0.1.0"
+description = "Neural speech synthesis via Amazon Polly"
+authors = ["Max Suica"]
+license = "Fully Automated Luxury Gay Communist Software License (FALGCSL)"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+boto3 = "^1.16.10"
+pyperclip = "^1.8.1"
+playsound = "^1.2.2"
+toml = "^0.10.2"
+munch = "^2.5.0"
+
+[tool.poetry.dev-dependencies]
+black = "^20.8b1"
+nose2 = "^0.9.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
