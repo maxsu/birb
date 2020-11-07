@@ -3,3 +3,5 @@ cache/
 credentials.csv
 .token.pk
 .vscode/
+
+borb.egg-info/
