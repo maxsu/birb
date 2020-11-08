@@ -1,3 +1,5 @@
+from hashlib import sha3_512 as H
+
 def segment(text, chunk=3000):
     """Segment text into chunks
 
@@ -14,6 +16,8 @@ def segment(text, chunk=3000):
     # Initial segmentation
     text = text.strip()
     _segments = text.splitlines()
+    if not _segments:
+        return []
 
     # Refine segmentation
     current = _segments[0]
@@ -33,3 +37,24 @@ def segment(text, chunk=3000):
         assert len(current) < chunk
     result.append(current)
     return list(enumerate(result,1))
+
+def template(template_string):
+    def _template(arguments):
+        print(template_string.format(*arguments))
+    return _template
+
+def insert(A, B, i):
+    return B[:i] + A + B[i:]
+
+def part_number(text, shape, spacer='-'):
+    # Surprisingly this actually works!
+    shape.sort(reverse=True)
+    for offset in shape:
+        text = insert(spacer, text, offset)
+    return text
+
+def digest(text):
+    return H(text.encode()).hexdigest()
+
+def speech_id(text):
+    return part_number(digest(text)[:24], [2,4,8,16])

@@ -1,4 +1,4 @@
-cache = '.'
+cache = 'borb'
 
 [synth]
 Engine       = 'neural'

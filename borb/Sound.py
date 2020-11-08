@@ -3,7 +3,7 @@ from pathlib import Path as p
 from conf import conf
 
 
-TMP_BUF = p(conf.cache) / 'tmp.mp3'
+TMP_BUF = conf.cache / 'tmp.mp3'
 
 def play(resource,):
     if isinstance(resource, p):
