@@ -9,8 +9,9 @@ def play(resource,):
     if isinstance(resource, p):
         playsound(resource.__str__())
     elif isinstance(resource, bytes):
-        TMP_BUF.write_bytes(resource)
-        playsound(TMP_BUF.__str__())
-        TMP_BUF.unlink()
+        temp_file = conf.cache / "tmp_{}.mp3".format(str(random())[-6:])
+        temp_file.write_bytes(resource)
+        playsound(temp_file.__str__())
+        temp_file.unlink()
     else:
         raise NotImplementedError
