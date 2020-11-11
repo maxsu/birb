@@ -25,7 +25,7 @@ def clean(text):
 	Convert \r \r\n into \n, and reduce runs of whitespace separated newlines
 	"""
 
-	text.replace('\r', '\n')
+	text = text.replace('\r', '\n')
 	return re.compile('(\n\s*)+').sub('\n', text )
 
 
@@ -41,9 +41,8 @@ def segment(text, page_size):
 	Returns (str): The paginated text
 	"""
 
-	if text != clean(text)
-	raise:
-		ValueError('segmentation function requires clean text.')
+	if text != clean(text):
+		raise ValueError('segmentation function requires clean text.')
 
 	# Initial segmentation
 	text = text.strip()
