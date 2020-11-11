@@ -5,3 +5,7 @@ credentials.csv
 .vscode/
 
 borb.egg-info/
+
+dist/
+
+credentials.toml

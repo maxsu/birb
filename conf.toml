@@ -1,4 +1,5 @@
 cache = 'borb'
+page_size = 3000
 
 [synth]
 Engine       = 'neural'
@@ -7,6 +8,4 @@ OutputFormat = 'mp3'
 
 
 [session]
-aws_access_key_id = ''
-aws_secret_access_key = ''
 region_name = 'us-west-2'
