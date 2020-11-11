@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "borb"
-version = "0.1.0"
+version = "0.1.1"
 description = "Neural speech synthesis via Amazon Polly"
 authors = ["Max Suica"]
 license = "Fully Automated Luxury Gay Communist Software License (FALGCSL)"
