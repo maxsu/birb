@@ -1,4 +1,5 @@
 from hashlib import sha3_512 as H
+import re
 
 def chop(text, n):
 	"""Chop text into uniform chunks
@@ -18,8 +19,20 @@ def chop(text, n):
 	assert 0 < len(B) < n
 	return A, B
 
+def clean(text):
+	"""Cleans and standardizes text
+
+	Convert \r \r\n into \n, and reduce runs of whitespace separated newlines
+	"""
+
+	text.replace('\r', '\n')
+	return re.compile('(\n\s*)+').sub('\n', text )
+
+
 def segment(text, page_size):
-	"""Segment text into pages under a character limit
+	"""Paginates text with a given charachter limit
+
+	Expects text to be "clean"
 
 	Args:
 		text (str): The text to segment
@@ -27,6 +40,10 @@ def segment(text, page_size):
 
 	Returns (str): The paginated text
 	"""
+
+	if text != clean(text)
+	raise:
+		ValueError('segmentation function requires clean text.')
 
 	# Initial segmentation
 	text = text.strip()

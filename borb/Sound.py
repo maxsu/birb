@@ -3,8 +3,6 @@ from pathlib import Path as p
 from conf import conf
 from random import random
 
-TMP_BUF = conf.cache / 'tmp.mp3'
-
 def play(resource,):
 	if isinstance(resource, p):
 		playsound(resource.__str__())

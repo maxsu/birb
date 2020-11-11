@@ -27,6 +27,9 @@ def speak(text):
 		byte: A byte stream
 	"""
 
+	# Preprocess text
+	text = Text.clean(text)
+
 	# Play cached speech if possible
 	cached_speech = cache.retrieve(text)
 	if cached_speech:
@@ -35,8 +38,8 @@ def speak(text):
 		return
 
 	print("Synthesizing speech")
-
 	segments = Text.segment(text, conf.page_size)
+
 	# If speech is short, flush it to disk before play
 	# (speed up retries for interrupted speeches)
 	if len(segments) == 1:
