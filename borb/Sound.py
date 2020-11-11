@@ -6,12 +6,12 @@ from random import random
 TMP_BUF = conf.cache / 'tmp.mp3'
 
 def play(resource,):
-    if isinstance(resource, p):
-        playsound(resource.__str__())
-    elif isinstance(resource, bytes):
-        temp_file = conf.cache / "tmp_{}.mp3".format(str(random())[-6:])
-        temp_file.write_bytes(resource)
-        playsound(temp_file.__str__())
-        temp_file.unlink()
-    else:
-        raise NotImplementedError
+	if isinstance(resource, p):
+		playsound(resource.__str__())
+	elif isinstance(resource, bytes):
+		temp_file = conf.cache / "tmp_{}.mp3".format(str(random())[-6:])
+		temp_file.write_bytes(resource)
+		playsound(temp_file.__str__())
+		temp_file.unlink()
+	else:
+		raise NotImplementedError
