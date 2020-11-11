@@ -1,81 +1,60 @@
 from hashlib import sha3_512 as H
 
-def chop(text, n):
-	"""Chop text into uniform chunks
+def segment(text, chunk=3000):
+    """Segment text into chunks
 
-	Args:
-		text (list(str)): The text to chop
-		n ([type]): The resulting chunk size
+    Intelligently segment a long a text into chunks of given size.
 
-	Returns:
-		result [list(str)]: A list of strings of size n
-		remainder: The final (incomplete) chunk
-	"""
-	_result = [text[i:i+n] for i in range(0, len(text), n)]
-	A, B = _result[:-1], _result[-1]
-	assert text == ''.join(A + [B])
-	assert all(map(lambda x: len(x) == n, A))
-	assert 0 < len(B) < n
-	return A, B
+    Args:
+        text (str): The text to segment
+        chunk (int, optional): Maximum segment length. Defaults to 3000.
+    """
+    def take_chunks(string, n):
+        """Chop string into chunks"""
+        return [string[i : i + n] for i in range(0, len(string), n)]
 
-def segment(text, page_size):
-	"""Segment text into pages under a character limit
+    # Initial segmentation
+    text = text.strip()
+    _segments = text.splitlines()
+    if not _segments:
+        return []
 
-	Args:
-		text (str): The text to segment
-		page_size (int): Maximum segment length.
-
-	Returns (str): The paginated text
-	"""
-
-	# Initial segmentation
-	text = text.strip()
-	lines = text.splitlines()
-
-	# Refine segmentation
-	buffer, result = '', []
-	grow = lambda x: buffer + ('\n' if buffer else '') + x
-	flush = lambda x: result.extend([*x]) if isinstance(x, list) else result.append(x)
-
-	for next in lines:
-		# Merge short lines
-		if len(buffer + next) < page_size:
-			buffer = grow(next)
-
-		else:
-			# Chop very long lines
-			if len(buffer + next) > page_size:
-				buffer = grow(next)
-				uniform_chunks, buffer = chop(buffer, page_size)
-				flush(uniform_chunks)
-			# Otherwise flush buffer
-			else:
-				flush(buffer)
-				buffer = line
-		assert len(buffer) < page_size
-	result.append(buffer)
-
-	assert text == ''.join(result)
-	assert all(map(lambda x: len(x) <= page_size, result))
-	return list(enumerate(result,1))
+    # Refine segmentation
+    current = _segments[0]
+    result = []
+    for next in _segments[1:]:
+        # Merge short segments
+        if len(current+next) < chunk:
+            current += "\n" + next
+        # Flush current if unable to merge
+        if len(current+next) >= chunk:
+            result.append(current)
+            current = next
+        # Merge, chop and flush large segments
+        if len(next) > chunk:
+            result += take_chunks(current + "\n" + next, chunk)
+            current = ''
+        assert len(current) < chunk
+    result.append(current)
+    return list(enumerate(result,1))
 
 def template(template_string):
-	def _template(arguments):
-		print(template_string.format(*arguments))
-	return _template
+    def _template(arguments):
+        print(template_string.format(*arguments))
+    return _template
 
 def insert(A, B, i):
-	return B[:i] + A + B[i:]
+    return B[:i] + A + B[i:]
 
 def part_number(text, shape, spacer='-'):
-	# Surprisingly this actually works!
-	shape.sort(reverse=True)
-	for offset in shape:
-		text = insert(spacer, text, offset)
-	return text
+    # Surprisingly this actually works!
+    shape.sort(reverse=True)
+    for offset in shape:
+        text = insert(spacer, text, offset)
+    return text
 
 def digest(text):
-	return H(text.encode()).hexdigest()
+    return H(text.encode()).hexdigest()
 
 def speech_id(text):
-	return part_number(digest(text)[:24], [2,4,8,16])
+    return part_number(digest(text)[:24], [2,4,8,16])
