@@ -1,5 +1,5 @@
 cache = 'borb'
-page_size = 3000
+page_limit = 3000
 
 [synth]
 Engine       = 'neural'

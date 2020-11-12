@@ -1,11 +1,11 @@
 import borb
 from pathlib import Path
 
+borb.conf.cache = Path('test')
 borb.speak('Henlo, I am borb.')
 
 # Setup
 borb.conf.page_size = 10
-borb.conf.cache = Path('test')
 
 # Test
 borb.speak('This sentence will be\n spoken in a few chunks')

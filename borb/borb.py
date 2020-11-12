@@ -38,7 +38,7 @@ def speak(text):
 		return
 
 	print("Synthesizing speech")
-	segments = Text.segment(text, conf.page_size)
+	segments = Text.paginate(text, conf.page_limit)
 
 	# If speech is short, flush it to disk before play
 	# (speed up retries for interrupted speeches)

@@ -1,23 +1,7 @@
 from hashlib import sha3_512 as H
 import re
-
-def chop(text, n):
-	"""Chop text into uniform chunks
-
-	Args:
-		text (list(str)): The text to chop
-		n ([type]): The resulting chunk size
-
-	Returns:
-		result [list(str)]: A list of strings of size n
-		remainder: The final (incomplete) chunk
-	"""
-	_result = [text[i:i+n] for i in range(0, len(text), n)]
-	A, B = _result[:-1], _result[-1]
-	assert text == ''.join(A + [B])
-	assert all(map(lambda x: len(x) == n, A))
-	assert 0 < len(B) < n
-	return A, B
+from dataclasses import dataclass
+from pathlib import Path
 
 def clean(text):
 	"""Cleans and standardizes text
@@ -29,8 +13,38 @@ def clean(text):
 	return re.compile('(\n\s*)+').sub('\n', text )
 
 
-def segment(text, page_size):
-	"""Paginates text with a given charachter limit
+def take(s, n):
+	"""Return first n characters of a list, and the remainder
+
+	Args:
+		s (string): a string to split
+		n (int): a position to split at
+
+	Returns
+	    take (str): The first n characters
+		remainder (str):  The rest of the string
+	"""
+	A, B = s[:n], s[n:]
+	assert s == A + B
+	return A, B
+
+
+@dataclass
+class Page:
+	text: str = ''
+	id: str = ''
+	num: int = 1
+	mp3: Path = None
+
+	def __len__(self):
+		return self.text.__len__()
+
+	def __str__(self):
+		return self.text
+
+
+def paginate(text, page_limit):
+	"""Paginates text with a given character limit
 
 	Expects text to be "clean"
 
@@ -42,38 +56,38 @@ def segment(text, page_size):
 	"""
 
 	if text != clean(text):
-		raise ValueError('segmentation function requires clean text.')
+		raise ValueError('Pagination requires clean text.')
 
 	# Initial segmentation
 	text = text.strip()
 	lines = text.splitlines()
 
 	# Refine segmentation
-	buffer, result = '', []
-	grow = lambda x: buffer + ('\n' if buffer else '') + x
-	flush = lambda x: result.extend([*x]) if isinstance(x, list) else result.append(x)
+	pages, 	page_num, temp_page =	[], 1, ''
+	_flush = lambda x: pages.append(Page(num=page_num, text=x))
 
-	for next in lines:
-		# Merge short lines
-		if len(buffer + next) < page_size:
-			buffer = grow(next)
+	for line in lines:
+		# Padding adds a spoken pause between lines.
+		pad = '\n' if temp_page else ''
+		temp_page += pad + line
 
-		else:
-			# Chop very long lines
-			if len(buffer + next) > page_size:
-				buffer = grow(next)
-				uniform_chunks, buffer = chop(buffer, page_size)
-				flush(uniform_chunks)
-			# Otherwise flush buffer
-			else:
-				flush(buffer)
-				buffer = line
-		assert len(buffer) < page_size
-	result.append(buffer)
+		while len(temp_page) >= page_limit:
+			page, temp_page = take(temp_page, page_limit)
+			_flush(page)
+			page_num += 1
 
-	assert text == ''.join(result)
-	assert all(map(lambda x: len(x) <= page_size, result))
-	return list(enumerate(result,1))
+		assert len(temp_page) < page_limit
+
+	if temp_page:
+		_flush(temp_page)
+
+	front_pages, final_page = take(pages, -1)
+
+	assert all([len(a) == page_limit for a in front_pages])
+	assert len(final_page) < page_limit
+	assert text == ''.join(map(lambda p: p.text, pages))
+
+	return [(p.num, p.text) for p in pages]
 
 def template(template_string):
 	def _template(arguments):
